@@ -1,0 +1,25 @@
+﻿@model Vidly.ViewModels.MoviesViewModel
+
+@{
+    ViewBag.Title = "ShowData";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>ShowData</h2>
+
+<p> @Model.Movie.Name </p>
+
+@{ 
+    var className = Model.Customer.Count > 0 ? "active" : "";
+}
+
+@*
+this is comment
+*@
+<ul>
+    @foreach (var customer in Model.Customer)
+    {
+        <li class="@className"> @customer.Name </li>
+    }
+</ul>
+

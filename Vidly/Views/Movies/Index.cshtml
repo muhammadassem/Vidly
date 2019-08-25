@@ -1,0 +1,87 @@
+﻿@model IEnumerable<Vidly.Models.Movie>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Movies</h2>
+
+<p>
+    @Html.ActionLink("New Movie", "New", "Movies", null, new { @class = "btn btn-primary"})
+</p>
+<table class="table table-bordered movies-table" id="movies">
+    <thead>
+        <tr>
+            <th>Movie</th>
+            <th>Release Date</th>
+            <th>Number in stock</th>
+            <th>Genre</th>
+            <th>Controls</th>
+        </tr>
+    </thead>
+        <tbody>
+            @*@foreach (var movie in Model)
+            {
+            <tr>
+                <td>@Html.ActionLink(movie.Name, "Edit", "Movies", new { id = movie.Id }, null)</td>
+                <td>@movie.Genre.Name</td>
+                <td><button class="btn-link delete-movie" id="delete-movie" data-delete-movie="@movie.Id">Delete</button></td>
+            </tr>
+            }*@
+        </tbody>
+</table>
+
+@section Scripts 
+{
+    <script>
+        $(document).ready(function () {
+            //$(".movies-table").DataTable();
+
+            var table =$(".movies-table").DataTable({
+                ajax:
+                {
+                    url: "http://localhost/Vidly/api/movies",
+                    dataSrc: ""
+                },
+
+                columns:
+                    [
+                        {
+                            data: "name"
+                        },
+                        {
+                            data: "releaseDate"
+                        },
+                        {
+                            data: "numberInStock"
+                        },
+                        {
+                            data: "genre.name"
+                        },
+                        {
+                            data: "id",
+                            render: function (data, type, movie) {
+                                return "<button class='btn-link js-delete' data-delete-movie='" + data + "'>Delete</button>";
+                            }
+                        }
+                    ]
+            });
+
+            $("#movies").on("click", ".js-delete", function () {
+                var button = $(this);
+                bootbox.confirm("are you sure to delete", function (result) {
+                    console.log("/Vidly/api/movies/" + $(".js-delete").attr("data-delete-movie"));
+                    if (result) {
+                        $.ajax({
+                            url: "/Vidly/api/movies/" + $(".js-delete").attr("data-delete-movie"),
+                            method: "DELETE",
+                            success: function () {
+                                table.row(button.parents("tr")).remove().draw();
+                            }
+                        })
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,95 @@
+﻿@model IEnumerable<Vidly.Models.Customer>
+
+@{
+    ViewBag.Title = "CustomerView";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Customers</h2>
+<p>
+    @Html.ActionLink("New Customer", "New", "Customers", null, new { @class="btn btn-primary btn-outline-primary"})
+</p>
+<table class="table table-bordered customer-table" id="customers">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>MemberShip Type</th>
+            <th>Controls</th>
+        </tr>
+    </thead>
+    <tbody>
+        @*@if (Model.Count() == 0)
+        {
+            <tr>
+                <td colspan="3">we don't have any customer yet. </td>
+            </tr>
+        }
+        else
+        {
+
+            foreach (var customer in Model)
+            {
+                <tr>
+                    <td>@Html.ActionLink(customer.Name, "Edit", "Customers", new { id = customer.Id }, null)</td>
+                    <td>@customer.MembershipType.DiscountRate</td>
+                    <td>@customer.MembershipType.Name</td>
+                    <td><button class="btn-link delete-customer" data-customer-id="@customer.Id">Delete</button></td>
+                </tr>
+            }
+        }*@
+    </tbody>
+</table>
+
+@section scripts
+{
+    <script>
+        // render datatable on the client not server
+        $(document).ready(function () {
+            var table = $(".customer-table").DataTable(
+                {
+                    ajax:
+                    {
+                        url: "http://localhost/Vidly/api/customers",
+                        dataSrc: ""
+                    },
+                    columns:
+                        [
+                            {
+                                data: "name",
+                                render: function (data, type, customer) {
+                                    return "<a href='/vidly/customers/edit/" + customer.id + "'>" + customer.name + "</a>";
+                                }
+                            },
+                            {
+                                data: "membershipType.name"
+                            },
+                            {
+                                data: "id",
+                                render: function (data) {
+                                    console.log(data);
+                                    return "<button class='btn-link js-delete' data-customer-id=" + data + ">Delete</button>";
+                                }
+                            }
+                        ]
+                }
+            );
+
+            $("#customers").on("click", ".js-delete", function () {
+                console.log('delete');
+                var button = $(this);
+                bootbox.confirm("are you sure to delete", function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: "http://localhost/Vidly/api/customers/" + button.attr("data-customer-id"),
+                            method: "DELETE",
+                            success: function () {
+                                table.row(button.parents("tr")).remove().draw();
+                                // this will delete the row from the internal list of datatable .. not only from dom
+                            }
+                        });
+                    }
+                })
+            })
+        });
+    </script>
+}
